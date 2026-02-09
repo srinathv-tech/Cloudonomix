@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+  <meta charset="UTF-8">
+  <title>Cloudonomix Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<header>
+  <h1><i class="fa-solid fa-cloud"></i> Cloudonomix Dashboard</h1>
+  <p>Visualizing cloud costs to identify & optimize unutilized resources</p> 
+</head>
+</header>
+
+</head>
+<div class="menu-container">
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+
+  <div id="sideMenu" class="side-menu">
+    <a href="index.html">🏠 Dashboard</a>
+    <a href="comparator.html">🔁 Cross-Cloud Price Comparator</a>
+  </div>
+</div>
+
+<body>
+<!-- <p class="trend trend-up">+12% from last month</p> -->
+
+  <!-- HEADER -->
+  <header>
+    <h1><i>Cloudonomix – Multi-Cloud Cost Optimization</h1></i>
+    <p> </p>
+  </header>
+
+
+  <section class="controls">
+  <select id="cloudSelect">
+  <option value="">Select Cloud</option>
+  <option value="AWS">AWS</option>
+  <option value="Azure">Azure</option>
+  <option value="GCP">GCP</option>
+</select>
+
+
+  
+
+  <button id="applyBtn" class="secondary-btn">Apply</button>
+</section>
+
+
+  <!-- SUMMARY CARDS -->
+  <section class="cards">
+    <div class="card">
+      <h3>Total Monthly Cost</h3>
+      <i class="fa-solid fa-coins card-icon blue"></i>
+      <p class="value" id="totalCost">₹80,000</p>
+    </div>
+
+    <div class="card warning">
+    <i class ="fa-solid fa-triangle-exclamation card-icon red"></i>
+      <h3>Wasted Cost (Idle)</h3>
+      <p class="value" id="wastedCost">₹18,000</p>
+    </div>
+
+    <div class="card">
+      <i class="fa-solid fa-triangle-exclamation card-icon red"></i>
+      <h3>Active Resources</h3>
+      <p class="value" id="activeResources">12</p>
+    </div>
+  </section>
+<h3 class="trend trend-up">+12% from last month</h3>
+
+  <!-- CLOUD COST SPLIT -->
+  <section class="panel">
+  <h2><i class="fa-solid fa-chart-pie"></i> Cloud Cost Distribution</h2>
+
+  <div class="chart-container center">
+    <div class="chart-box"></div>
+      <canvas id="costChart"></canvas>
+<div class="chart-info">
+      <h3>Cost Insights</h3>
+      <p><strong>Highest Spend:</strong> <span id="highestSpend"></span></p>
+      <p><strong>Lowest Spend:</strong> <span id="lowestSpend"></span></p>
+      <p><strong>Total Clouds:</strong> <span id="totalClouds"></span></p>
+      <p><strong>Wasted Cost:</strong> <span id="wastedCostText"></span></p>
+    </div>
+
+  </div>
+</section>
+<section class="panel insights"><i>
+  <h2><i class="fa-solid fa-lightbulb"></i> Optimization Insights</h2>
+<centre>
+  <ul>
+    <li id="highestCost">r</li>
+    <li id="idleCount"></li>
+    <li id="savings"></li>
+  </ul>
+</section></i>
+</centre>
+
+
+  <!-- COST ALERTS -->
+  <section class="panel alert">
+    <h2><i class="fa-solid fa-bell"></i> Cost Alerts</h2>
+
+    <ul id="alerts"></ul>
+      <button class="fix-btn" disabled>
+  </button>
+
+  <p class="preview-text"><b>
+    Auto-optimization actions will be executed automatically in future.
+  </p></b>
+
+  </section>
+
+  <!-- IDLE VM LIST -->
+  <section class="panel">
+    <h2><i class="fa-solid fa-desktop"></i> Idle Virtual Machines</h2>
+
+    <table>
+      <tr>
+        <th>Cloud</th>
+        <th>VM Name</th>
+        <th>Status</th>
+        <th>action</th>
+      </tr>
+      <tbody id="idleTable"></tbody>
+    </table>
+  </section>
+
+<script>
+  // FIRST CARD: Cost Summary
+  fetch("http://localhost:5000/summary")
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("totalCost").innerText = "₹" + data.total_cost;
+      document.getElementById("wastedCost").innerText = "₹" + data.wasted_cost;
+    })
+    .catch(error => console.error("Error fetching summary:", error));
+
+  // SECOND CARD: Active Resources
+  fetch("http://localhost:5000/all-resources")
+    .then(response => response.json())
+    .then(resources => {
+      document.getElementById("activeResources").innerText = resources.length;
+    })
+    .catch(error => console.error("Error fetching resources:", error));
+
+// Cloud Cost Distribution Chart
+fetch("http://localhost:5000/cloud-distribution")
+  .then(response => response.json())
+  .then(data => {
+
+    // backend structure
+    const dist = data.distribution;
+
+    const canvas = document.getElementById("costChart");
+    if (!canvas) {
+      console.error("costChart canvas not found");
+      return;
+    }
+
+    new Chart(canvas.getContext("2d"), {
+      type: "pie",
+      data: {
+        labels: Object.keys(dist),
+        datasets: [{
+          data: Object.values(dist),
+          backgroundColor: ["#f59e0b", "#2563eb", "#16a34a"]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+
+    // Update Cost Insights text (right side)
+    document.getElementById("highestSpend").innerText = data.highest;
+    document.getElementById("lowestSpend").innerText = data.lowest;
+    document.getElementById("totalClouds").innerText = data.total_clouds;
+    document.getElementById("wastedCostText").innerText = "₹" + data.wasted_cost;
+
+  })
+  .catch(err => console.error("Chart error:", err));
+
+  document.getElementById("applyBtn").addEventListener("click", () => {
+  const cloud = document.getElementById("cloudSelect").value;
+  const query = cloud ? `?cloud=${cloud}` : "";
+
+  // === SUMMARY CARDS ===
+  fetch(`http://localhost:5000/summary${query}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("totalCost").innerText = "₹" + data.total_cost;
+      document.getElementById("wastedCost").innerText = "₹" + data.wasted_cost;
+      document.getElementById("activeResources").innerText = data.active_resources;
+    })
+    .catch(err => console.error("Summary error:", err));
+
+  // === CLOUD DISTRIBUTION CHART ===
+  fetch(`http://localhost:5000/cloud-distribution${query}`)
+    .then(res => res.json())
+    .then(data => updateChart(data))
+    .catch(err => console.error("Chart error:", err));
+});
+
+function updateChart(data) {
+  const labels = Object.keys(data.distribution);
+  const values = Object.values(data.distribution);
+
+  cloudChart.data.labels = labels;
+  cloudChart.data.datasets[0].data = values;
+  cloudChart.update();
+
+  document.getElementById("highestSpend").innerText = data.highest;
+  document.getElementById("lowestSpend").innerText = data.lowest;
+  document.getElementById("totalClouds").innerText = data.total_clouds;
+  document.getElementById("wastedCostText").innerText = "₹" + data.wasted_cost;
+}
+
+fetch("http://127.0.0.1:5000/api/insights")
+  .then(res => res.json())
+  .then(data => {
+
+    // Optimization Insights
+    document.getElementById("highestCost").innerText =
+      data.highest_cost_cloud + " is the highest cost driver";
+
+    document.getElementById("idleCount").innerText =
+      data.idle_vms + " idle virtual machines detected";
+
+    document.getElementById("savings").innerText =
+      "Potential Savings : ₹" + data.potential_savings.toLocaleString();
+
+    // Cost Alerts
+    const alertsList = document.getElementById("alerts");
+    alertsList.innerHTML = "";
+    data.alerts.forEach(alert => {
+      const li = document.createElement("li");
+      li.innerText = alert;
+      alertsList.appendChild(li);
+    });
+
+    // Idle VMs table
+    const table = document.getElementById("idleTable");
+    table.innerHTML = "";
+    data.idle_vm_list.forEach(vm => {
+      table.innerHTML += `
+        <tr>
+          <td>${vm.cloud}</td>
+          <td>${vm.name}</td>
+          <td><span class="badge idle">${vm.status}</span></td>
+          <td>
+            ${
+               vm.status === "Idle"
+                ? `<button class="action-btn" onclick="shutdownVM('${vm.name}')">Shutdown</button>`
+                : `<span class="badge success">Stopped</span>`
+             }
+          </td>
+        </tr>
+      `;
+    });
+  });
+
+function shutdownVM(vmId) {
+  fetch("http://127.0.0.1:5000/api/shutdown-vm", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ vm_id: vmId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message);
+    location.reload();
+  })
+  .catch(err => {
+    alert("Failed to shutdown VM");
+    console.error(err);
+  });
+}
+
+</script>
+<script src="menu.js"></script>
+
+
+
+</body>
+</html>

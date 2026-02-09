@@ -1,0 +1,66 @@
+<body>
+
+<div class="menu-container">
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div id="sideMenu" class="side-menu">
+    <a href="index.html">🏠 Dashboard</a>
+    <a href="comparator.html">🔁 Cross-Cloud Price Comparator</a>
+  </div>
+</div>
+
+<div class="page-container">
+
+  <h2>🔁 Cross-Cloud VM Price Comparator</h2>
+  <link rel="stylesheet" href="style.css">
+  <p class="subtitle">Configure your VM and compare prices across cloud providers</p>
+
+  <!-- VM CONFIG CARD -->
+  <div class="card config-card">
+    <h3>VM Configuration</h3>
+
+    <div class="form-grid">
+      <select id="vmType">
+        <option>General Purpose</option>
+        <option>Compute Optimized</option>
+        <option>Memory Optimized</option>
+      </select>
+
+      <select id="vcpu">
+        <option>2 vCPU</option>
+        <option>4 vCPU</option>
+        <option>8 vCPU</option>
+      </select>
+
+      <select id="ram">
+        <option>8 GB RAM</option>
+        <option>16 GB RAM</option>
+        <option>32 GB RAM</option>
+      </select>
+
+      <select id="os">
+        <option>Linux</option>
+        <option>Windows</option>
+      </select>
+    </div>
+
+    <button onclick="comparePrices()">Compare Prices</button>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div class="card result-card" id="result" style="display:none;">
+    <h3>Price Comparison (₹ / hour)</h3>
+
+    <div class="price-grid">
+      <div class="price aws">AWS<br><strong id="awsPrice"></strong></div>
+      <div class="price azure">Azure<br><strong id="azurePrice"></strong></div>
+      <div class="price gcp">GCP<br><strong id="gcpPrice"></strong></div>
+    </div>
+
+    <p class="cheapest" id="cheapest"></p>
+  </div>
+
+</div>
+
+<script src="menu.js"></script>
+<script src="comparator.js"></script>
+</body>

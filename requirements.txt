@@ -1,0 +1,9 @@
+streamlit
+pandas
+requests
+python-dotenv
+boto3
+azure-identity
+azure-mgmt-costmanagement
+azure-mgmt-compute
+azure-mgmt-monitor

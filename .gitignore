@@ -1,0 +1,14 @@
+# secrets and local data: never commit these
+.env
+.streamlit/secrets.toml
+*.db
+
+# python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# misc
+.DS_Store
+*.log

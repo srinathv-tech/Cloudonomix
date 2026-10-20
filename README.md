@@ -43,7 +43,7 @@ AWS APIs    ─┘  (billing, VMs,   (cloudonomix.db)├─ Price comparison
 
 ```bash
 # 1. get the code
-git clone <your-repo-url>
+git clone https://github.com/srinathv-tech/Cloudonomix
 cd cloudonomix
 
 # 2. create and activate a virtual environment

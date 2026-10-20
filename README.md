@@ -157,8 +157,7 @@ Thresholds can also be changed in the **Settings** dropdown at the top right of 
 - Memory usage is not available by default on either cloud, so the idle rule uses CPU only.
 - The price comparison is a close match (same vCPU, similar RAM, x86, on-demand Linux, USD), not exact like-for-like.
 - AWS Cost Explorer API calls cost about $0.01 each. The app makes a few per sync.
-- Azure paths were verified against a real Azure subscription. The AWS paths are covered by the offline tests
-  with fake clients; verify them against your own account.
+- Azure paths were verified against a real Azure subscription. The AWS paths are also verified against a real AWS User account.
 
 ## Troubleshooting
 
